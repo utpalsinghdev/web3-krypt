@@ -14,7 +14,8 @@ const companyCommonStyles =
 function Welcome() {
   const contextValue = useContext(TransactionContext);
 
-  const { currentAccount, connectWallet, sendTransactions } = contextValue;
+  const { currentAccount, connectWallet, sendTransactions, isLoading } =
+    contextValue;
 
   const Input = ({
     placeholder,
@@ -105,9 +106,14 @@ function Welcome() {
               keyword: "",
               message: "",
             }}
-            onSubmit={() => {
+            onSubmit={(values) => {
               if (sendTransactions) {
-                sendTransactions();
+                sendTransactions(
+                  values.addressTo,
+                  values.amount.toString(),
+                  values.message,
+                  values.keyword
+                );
               }
             }}
           >
@@ -145,7 +151,7 @@ function Welcome() {
                   value={values.message}
                 />
                 <div className="h-[1px] w-full bg-gray-400 my-2" />
-                {false ? (
+                {isLoading ? (
                   <Loader />
                 ) : (
                   <button
