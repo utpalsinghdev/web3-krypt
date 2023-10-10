@@ -58,6 +58,9 @@ export const TransactionsProvider = ({
   // const [transactions, setTransactions] = React.useState<any[]>([]);
   console.log(transactionCount);
 
+  //Functions and Handlers
+
+  //Connect to Wallet Function
   const connectWallet = async () => {
     try {
       if (!ethereum) return alert("Please install MetaMask.");
@@ -72,6 +75,8 @@ export const TransactionsProvider = ({
       throw new Error("No ethereum object");
     }
   };
+
+  //Send Eth Function
   async function sendTransactions(
     addressTo: string,
     amount: string,
@@ -115,6 +120,8 @@ export const TransactionsProvider = ({
       console.log(error);
     }
   }
+
+  //Checking if Wallet Already Connected or Not
   async function CheckIfWalletIsConnected() {
     try {
       if (!ethereum) return alert("Please Install MetaMask");
@@ -133,9 +140,11 @@ export const TransactionsProvider = ({
     }
   }
 
+  //Calling Handlers
   React.useEffect(() => {
     CheckIfWalletIsConnected();
   }, []);
+
   return (
     <TransactionContext.Provider
       value={{
