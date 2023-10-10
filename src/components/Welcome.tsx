@@ -10,7 +10,9 @@ const companyCommonStyles =
   "min-h-[70px] sm:px-0 px-2 sm:min-w-[120px] flex justify-center items-center border-[0.5px] border-gray-400 text-sm font-light text-white";
 
 function Welcome() {
-  const { connectWallet } = useContext(TransactionContext);
+  const contextValue = useContext(TransactionContext);
+
+  const { connectWallet, currentAccount } = contextValue;
   function handleChange() {}
   function handleSubmit() {}
   const Input = ({
@@ -50,14 +52,18 @@ function Welcome() {
           <p className="ttext-left mt-5 text-white font-light md:w-9/12 w-11/12 text-base">
             Explore the Crypto World. Buy and Sell cryptocurrencies on Krypto.
           </p>
-          <button
-            className="flex flex-row justify-center items-center my-5 bg-[#2952e3] p-3 rounded-full cursor-pointer hover:bg-[#2546bd]"
-            type="button"
-            onClick={connectWallet}
-          >
-            {" "}
-            <p className="text-white text-base font-semibold">Connect Wallet</p>
-          </button>
+          {!currentAccount && (
+            <button
+              className="flex flex-row justify-center items-center my-5 bg-[#2952e3] p-3 rounded-full cursor-pointer hover:bg-[#2546bd]"
+              type="button"
+              onClick={connectWallet}
+            >
+              {" "}
+              <p className="text-white text-base font-semibold">
+                Connect Wallet
+              </p>
+            </button>
+          )}
           <div className="grid sm:grid-cols-3 grid-cols-2 w-full mt-10">
             <div className={cn("rounded-tl-2xl", companyCommonStyles)}>
               Reliability

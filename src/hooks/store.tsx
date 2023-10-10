@@ -65,19 +65,28 @@ export const TransactionsProvider = ({
     }
   };
   async function CheckIfWalletIsConnected() {
-    if (!ethereum) return alert("Please Install MetaMask");
+    try {
+      if (!ethereum) return alert("Please Install MetaMask");
 
-    const accounts = await ethereum.request({
-      method: "eth_accounts",
-    });
+      const accounts = await ethereum.request({
+        method: "eth_accounts",
+      });
 
-    console.log(accounts);
+      if (accounts.length) {
+        setCurrentAccount(accounts[0]);
+      } else {
+        console.log("No Accounts Found");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
   React.useEffect(() => {
     CheckIfWalletIsConnected();
   });
+
   return (
-    <TransactionContext.Provider value={{ connectWallet }}>
+    <TransactionContext.Provider value={{ connectWallet, currentAccount }}>
       {children}
     </TransactionContext.Provider>
   );
