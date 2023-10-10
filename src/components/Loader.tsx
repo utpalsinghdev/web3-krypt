@@ -1,9 +1,9 @@
-import React from "react";
-
-type Props = {};
-
-function Loader({}: Props) {
-  return <div>Loader</div>;
+function Loader() {
+  return (
+    <div className="flex justify-center items-center py-3">
+      <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-red-700" />
+    </div>
+  );
 }
 
 export default Loader;
