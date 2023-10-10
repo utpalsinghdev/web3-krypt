@@ -1,4 +1,5 @@
-import { AiFillPayCircle } from "react-icons/ai";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// import { AiFillPayCircle } from "react-icons/ai";
 import { useContext } from "react";
 import { SiEthereum } from "react-icons/si";
 import { BsInfoCircle } from "react-icons/bs";
@@ -6,15 +7,15 @@ import { Loader } from ".";
 import { cn } from "@/lib/utils";
 import { addressMaster } from "@/lib/addressMasker";
 import { TransactionContext } from "@/hooks/store";
+import { Formik } from "formik";
 const companyCommonStyles =
   "min-h-[70px] sm:px-0 px-2 sm:min-w-[120px] flex justify-center items-center border-[0.5px] border-gray-400 text-sm font-light text-white";
 
 function Welcome() {
   const contextValue = useContext(TransactionContext);
 
-  const { connectWallet, currentAccount } = contextValue;
-  function handleChange() {}
-  function handleSubmit() {}
+  const { currentAccount, connectWallet, sendTransactions } = contextValue;
+
   const Input = ({
     placeholder,
     name,
@@ -26,17 +27,14 @@ function Welcome() {
     name: string;
     type: string;
     value: string;
-    handleChange: (
-      e: React.ChangeEvent<HTMLInputElement>,
-      name: string
-    ) => void;
+    handleChange: any;
   }) => (
     <input
       placeholder={placeholder}
+      name={name}
       type={type}
-      step="0.0001"
       value={value}
-      onChange={(e) => handleChange(e, name)}
+      onChange={handleChange}
       className="my-2 w-full rounded-sm p-2 outline-none bg-transparent text-white border-none text-sm white-glassmorphism"
     />
   );
@@ -92,7 +90,7 @@ function Welcome() {
               </div>
               <div>
                 <p className="text-white font-light text-sm">
-                  {addressMaster("0x0fjsifajfilashfslfho")}
+                  {addressMaster(currentAccount)}
                 </p>
                 <p className="text-white font-semibold text-lg mt-1">
                   Ethereum
@@ -100,48 +98,66 @@ function Welcome() {
               </div>
             </div>
           </div>
-          <div className="p-5 sm:w-96 w-full flex flex-col justify-start items-center blue-glassmorphism">
-            <Input
-              placeholder="Address To"
-              name="addressTo"
-              type="text"
-              handleChange={handleChange}
-              value={""}
-            />
-            <Input
-              placeholder="Amount (ETH)"
-              name="amount"
-              type="number"
-              handleChange={handleChange}
-              value={""}
-            />
-            <Input
-              placeholder="Keyword (Gif)"
-              name="keyword"
-              type="text"
-              handleChange={handleChange}
-              value={""}
-            />
-            <Input
-              placeholder="Enter Message"
-              name="message"
-              type="text"
-              handleChange={handleChange}
-              value={""}
-            />
-            <div className="h-[1px] w-full bg-gray-400 my-2" />
-            {true ? (
-              <Loader />
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="text-white w-full mt-2 border-[1px] p-2 border-[#3d4f7c] hover:bg-[#3d4f7c] rounded-full cursor-pointer"
+          <Formik
+            initialValues={{
+              addressTo: "",
+              amount: "",
+              keyword: "",
+              message: "",
+            }}
+            onSubmit={() => {
+              if (sendTransactions) {
+                sendTransactions();
+              }
+            }}
+          >
+            {({ handleChange, handleSubmit, values }) => (
+              <form
+                onSubmit={handleSubmit}
+                className="p-5 sm:w-96 w-full flex flex-col justify-start items-center blue-glassmorphism"
               >
-                Send now
-              </button>
+                <Input
+                  placeholder="Address To"
+                  name="addressTo"
+                  type="text"
+                  handleChange={handleChange}
+                  value={values.addressTo}
+                />
+                <Input
+                  placeholder="Amount (ETH)"
+                  name="amount"
+                  type="number"
+                  handleChange={handleChange}
+                  value={values.amount}
+                />
+                <Input
+                  placeholder="Keyword (Gif)"
+                  name="keyword"
+                  type="text"
+                  handleChange={handleChange}
+                  value={values.keyword}
+                />
+                <Input
+                  placeholder="Enter Message"
+                  name="message"
+                  type="text"
+                  handleChange={handleChange}
+                  value={values.message}
+                />
+                <div className="h-[1px] w-full bg-gray-400 my-2" />
+                {false ? (
+                  <Loader />
+                ) : (
+                  <button
+                    type="submit"
+                    className="text-white w-full mt-2 border-[1px] p-2 border-[#3d4f7c] hover:bg-[#3d4f7c] rounded-full cursor-pointer"
+                  >
+                    Send now
+                  </button>
+                )}
+              </form>
             )}
-          </div>
+          </Formik>
         </div>
       </div>
     </div>

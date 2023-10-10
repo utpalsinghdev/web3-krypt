@@ -1,34 +1,37 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ethers } from "ethers";
 import { contractAbi, contractAddress } from "@/lib/constants";
 import React from "react";
+import { Web3Provider } from "@ethersproject/providers";
 
-export const TransactionContext = React.createContext({});
+interface TransactionContextValues {
+  connectWallet?: () => void;
+  sendTransactions?: () => void;
+  currentAccount?: string;
+}
+
+export const TransactionContext = React.createContext<TransactionContextValues>(
+  {}
+);
 declare global {
   interface Window {
-    ethereum?: unknown;
+    ethereum?: any;
   }
 }
+
 const { ethereum } = window;
 
 if (!ethereum) {
   console.error("Ethereum provider not found");
 }
 function getEtherumContract() {
-  const provider = new ethers.providers.Web3Provider(ethereum);
+  const provider = new Web3Provider(ethereum);
 
   const signer = provider.getSigner();
 
-  const transactionContract = new ethers.Contract(
-    contractAddress,
-    contractAbi,
-    signer
-  );
+  const transactionContract = new ethers.Contract(contractAddress, contractAbi);
 
-  console.log({
-    provider,
-    signer,
-    transactionContract,
-  });
+  return transactionContract;
 }
 
 export const TransactionsProvider = ({
@@ -36,18 +39,13 @@ export const TransactionsProvider = ({
 }: {
   children: JSX.Element;
 }) => {
-  const [formData, setformData] = React.useState({
-    addressTo: "",
-    amount: "",
-    keyword: "",
-    message: "",
-  });
-  const [currentAccount, setCurrentAccount] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [transactionCount, setTransactionCount] = React.useState(
-    localStorage.getItem("transactionCount")
+  const [currentAccount, setCurrentAccount] = React.useState<string>("");
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [transactionCount, setTransactionCount] = React.useState<string>(
+    localStorage.getItem("transactionCount") || ""
   );
-  const [transactions, setTransactions] = React.useState([]);
+  const [transactions, setTransactions] = React.useState<any[]>([]);
+
   const connectWallet = async () => {
     try {
       if (!ethereum) return alert("Please install MetaMask.");
@@ -59,11 +57,17 @@ export const TransactionsProvider = ({
       setCurrentAccount(accounts[0]);
       window.location.reload();
     } catch (error) {
-      console.log(error);
-
       throw new Error("No ethereum object");
     }
   };
+  async function sendTransactions() {
+    try {
+      if (!ethereum) return alert("Please Install MetaMask");
+      const transactionContract = getEtherumContract();
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async function CheckIfWalletIsConnected() {
     try {
       if (!ethereum) return alert("Please Install MetaMask");
@@ -81,12 +85,18 @@ export const TransactionsProvider = ({
       console.log(error);
     }
   }
+
   React.useEffect(() => {
     CheckIfWalletIsConnected();
-  });
-
+  }, []);
   return (
-    <TransactionContext.Provider value={{ connectWallet, currentAccount }}>
+    <TransactionContext.Provider
+      value={{
+        connectWallet,
+        currentAccount,
+        sendTransactions,
+      }}
+    >
       {children}
     </TransactionContext.Provider>
   );
