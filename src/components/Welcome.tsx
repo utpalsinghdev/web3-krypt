@@ -68,10 +68,10 @@ function Welcome() {
               Reliability
             </div>
             <div className={cn("", companyCommonStyles)}>Security</div>
-            <div className={cn("rounded-tr-2xl", companyCommonStyles)}>
+            <div className={cn("md:rounded-tr-2xl", companyCommonStyles)}>
               Ethereum
             </div>
-            <div className={cn("rounded-bl-2xl", companyCommonStyles)}>
+            <div className={cn("md:rounded-bl-2xl", companyCommonStyles)}>
               Web3
             </div>
             <div className={cn("", companyCommonStyles)}>Low Fees</div>
