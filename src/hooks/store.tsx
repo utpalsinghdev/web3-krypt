@@ -4,21 +4,47 @@ import { contractAbi, contractAddress } from "@/lib/constants";
 import React from "react";
 
 //Creating a InterFace for Context API
+interface Transaction {
+  addressTo: string;
+  addressFrom: string;
+  timestamp: string;
+  message: string;
+  keyword: string;
+  amount: number;
+}
+
 interface TransactionContextValues {
-  connectWallet?: () => void;
-  sendTransactions?: (
+  connectWallet: () => Promise<void>;
+  sendTransactions: (
     addressTo: string,
     amount: string,
     message: string,
     keyword: string
   ) => Promise<void>;
-  currentAccount?: string;
-  isLoading?: boolean;
+  currentAccount: string;
+  isLoading: boolean;
+  transactions: Transaction[];
 }
 
 //Creating a Context API for handling Data Flow Through out the Project
 export const TransactionContext = React.createContext<TransactionContextValues>(
-  {}
+  {
+    connectWallet: function (): Promise<void> {
+      throw new Error("Function not implemented.");
+    },
+    sendTransactions: function (
+      addressTo: string,
+      amount: string,
+      message: string,
+      keyword: string
+    ): Promise<void> {
+      console.log(addressTo, amount, message, keyword);
+      throw new Error("Function not implemented.");
+    },
+    currentAccount: "",
+    isLoading: false,
+    transactions: [],
+  }
 );
 
 //Declare Window as Global
@@ -55,9 +81,8 @@ export const TransactionsProvider = ({
   const [transactionCount, setTransactionCount] = React.useState<string>(
     localStorage.getItem("transactionCount") || ""
   );
-  // const [transactions, setTransactions] = React.useState<any[]>([]);
+  const [transactions, setTransactions] = React.useState<any[]>([]);
   console.log(transactionCount);
-
   //Functions and Handlers
 
   //Connect to Wallet Function
@@ -72,6 +97,58 @@ export const TransactionsProvider = ({
       setCurrentAccount(accounts[0]);
       window.location.reload();
     } catch (error) {
+      throw new Error("No ethereum object");
+    }
+  };
+
+  //Getting Transactions from BlockChain
+  const getAllTransactions = async () => {
+    try {
+      if (ethereum) {
+        const transactionsContract = createEthereumContract();
+        console.log(transactionsContract);
+        const availableTransactions =
+          await transactionsContract?.getTransactionsCount();
+        console.log(availableTransactions);
+        const structuredTransactions = availableTransactions.map(
+          (transaction: any) => ({
+            addressTo: transaction.receiver,
+            addressFrom: transaction.sender,
+            timestamp: new Date(
+              transaction.timestamp.toNumber() * 1000
+            ).toLocaleString(),
+            message: transaction.message,
+            keyword: transaction.keyword,
+            amount: parseInt(transaction.amount._hex) / 10 ** 18,
+          })
+        );
+
+        console.log(structuredTransactions);
+
+        setTransactions(structuredTransactions);
+      } else {
+        console.log("Ethereum is not present");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  //Check if Transactions Exists
+  const checkIfTransactionsExists = async () => {
+    try {
+      if (ethereum) {
+        const transactionsContract = createEthereumContract();
+        const currentTransactionCount =
+          await transactionsContract.getTransactionsCount();
+
+        window.localStorage.setItem(
+          "transactionCount",
+          currentTransactionCount
+        );
+      }
+    } catch (error) {
+      console.log(error);
+
       throw new Error("No ethereum object");
     }
   };
@@ -124,7 +201,7 @@ export const TransactionsProvider = ({
   //Checking if Wallet Already Connected or Not
   async function CheckIfWalletIsConnected() {
     try {
-      if (!ethereum) return false
+      if (!ethereum) return false;
 
       const accounts = await ethereum.request({
         method: "eth_accounts",
@@ -132,6 +209,7 @@ export const TransactionsProvider = ({
 
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
+        getAllTransactions();
       } else {
         console.log("No Accounts Found");
       }
@@ -143,6 +221,7 @@ export const TransactionsProvider = ({
   //Calling Handlers
   React.useEffect(() => {
     CheckIfWalletIsConnected();
+    checkIfTransactionsExists();
   }, []);
 
   return (
@@ -152,6 +231,7 @@ export const TransactionsProvider = ({
         currentAccount,
         sendTransactions,
         isLoading,
+        transactions,
       }}
     >
       {children}

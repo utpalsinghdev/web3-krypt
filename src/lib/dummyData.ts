@@ -9,7 +9,7 @@ interface Transaction {
 
 }
 
-const transactions: Transaction[] = [
+const DummyTransactions: Transaction[] = [
     {
         id: 1,
         url: "https://metro.co.uk/wp-content/uploads/2015/05/pokemon_crying.gif?quality=90&strip=all&zoom=1&resize=500%2C284",
@@ -66,4 +66,4 @@ const transactions: Transaction[] = [
     },
 ];
 
-export default transactions
+export default DummyTransactions
