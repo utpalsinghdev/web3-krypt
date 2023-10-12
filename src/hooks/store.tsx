@@ -124,7 +124,7 @@ export const TransactionsProvider = ({
   //Checking if Wallet Already Connected or Not
   async function CheckIfWalletIsConnected() {
     try {
-      if (!ethereum) return alert("Please Install MetaMask");
+      if (!ethereum) return false
 
       const accounts = await ethereum.request({
         method: "eth_accounts",
